@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+		
+		<!-- EventExpireChk 만들고 설정 -->
+		<interceptors>
+			<beans:ref bean="eventExpireChk"/>
+		</interceptors>
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	<!-- annotation-config의 성격과 같은 -->
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" /> 
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	<!-- bean이 byType으로 걸려있지만 veiw페이지를 빼주는 재정의 하는 것 -->
+	
+	<beans:bean id="multipartResolver"
+	class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+	/>
+	<!-- multipartresolver(MultipartFile) 쓰기위한 bean -->
+	
+	<context:component-scan base-package="com.test.board" />
+	
+	<context:component-scan base-package="mvc" />
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+			<!-- aop 설정 -->
+ 	<!-- <aop:config>
+		<aop:aspect ref="adminAspect"> bean 땡겨오기 -> pointcut 사용하기
+			<aop:pointcut expression="execution(* mvc.controll.admin..*.*(..))" 
+			id="contorllAdimin"/>  이쪽으로 이동하겠다
+			<aop:around method="loginArround" pointcut-ref="contorllAdimin"/>
+		</aop:aspect>
+	</aop:config> --> 
+	
+	<aop:aspectj-autoproxy /> <!-- annotion으로 aop 쓸때 선언 -->
+	
+</beans:beans>

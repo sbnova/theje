@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- Data Source 생성  ConnectionPool방식 생성 -->
+	<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<beans:property name="url" value="jdbc:mysql://localhost:3306/stsboard?useUnicode=true&amp;characterEncoding=utf8" />
+		<beans:property name="username" value="sts" />
+		<beans:property name="password" value="1234" />
+		<beans:property name="maxActive" value="500" /> <!-- 최대 접속자수 -> DB생성시 정해진 수를 넘지못한다 -->
+		<beans:property name="maxIdle" value="100" /> <!-- 동시 접속자 -->
+		<beans:property name="poolPreparedStatements" value="true" /> <!-- PreparedStatements : 보안(잘못된 글자 못들어가게 하기 위함) -->
+		<beans:property name="defaultAutoCommit" value="true" />
+		
+	</beans:bean>
+	
+	<!-- FactoryBean 생성 ->mybatis 사용하기위한 -->
+	<beans:bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="typeAliasesPackage" value="mvc.model" />
+		<beans:property name="configLocation" value="classpath:/myba/mybatis_config.xml"></beans:property> <!-- 설정파일 -->
+		<beans:property name="mapperLocations" value="classpath:/myba/mapper/*.xml" />
+		<!-- <beans:property name="mapperLocations">
+			<beans:array>
+				<beans:value>classpath:/myba/boardMapper.xml</beans:value>
+			</beans:array>
+		</beans:property>mapper -->
+	</beans:bean>
+	
+	<!-- 실제 사용 -->
+	<beans:bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<beans:constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean" />
+	</beans:bean>
+	
+	<beans:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+	
+</beans:beans>

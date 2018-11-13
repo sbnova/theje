@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+<!-- table 단위로 mapper를 설정 할 수 있다, 단 테이블이 많은건 좋지 않다 최대 10개정도 -->
+<mapper namespace="boardMM"> <!-- 아무이름을 써도 상관없다 -->
+	
+	<sql id="schIF">
+		<where>
+			<if test="sch != null">				
+					 title like concat('%', #{sch}, '%') <!-- =='%${sch}%' -->
+			</if>
+			<if test="cntType != null">				
+				<![CDATA[ cnt ${cntType} #{cnt} ]]>	 <!-- 문자열을 제외한 기호같은것은 $로 표시해야 한다 -->
+			</if>
+		</where>
+	</sql>
+	
+	
+	<select id="list" resultType="boardDTO" parameterType="boardDTO">
+		select * from board 
+		
+		<include refid="schIF" />
+		
+		order by id desc
+	</select>
+	
+	<insert id="insertOne" parameterType="boardDTO">
+	<!-- 가져오는건 result가아닌 parameterType -->
+		insert into board(cnt, pname, pw, title, content, upfile)
+		values(-1, #{pname}, #{pw}, #{title}, #{content}, #{upfile})
+	<!-- preparent는 #{} 사용 --> <!-- 작성하고 글내용 안으로 갔으므로 0>-1 -->
+	
+		<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			select max(id) from board
+		</selectKey>
+	</insert>
+	
+	<select id="selectOne" resultType="boardDTO" parameterType="boardDTO">
+		select * from board
+		where id=#{id}
+	</select>
+	
+	<delete id="deleteOne" parameterType="boardDTO"> <!-- 갯수로 반환되니 result는 필요없다 -->
+		delete from board where id=#{id} and pw=#{pw} <!-- pw가 있어야 작동되게 한다 -->
+	</delete>
+	
+	<update id="modify" parameterType="boardDTO">
+		update board set title=#{title}, pname=#{pname}, content=#{content} 
+		where id=#{id} and pw = #{pw}
+	</update>
+	
+	<update id="addCount" parameterType="boardDTO">
+		update board set cnt = cnt+1
+		where id=#{id}
+	</update>
+	
+	<insert id="insertList" parameterType="listDTO" >
+		insert into board (cnt, pname, pw, title, content)
+		values
+		<foreach collection="mem" item="buf" separator=","> 
+		(0, #{buf.pname}, #{buf.pw}, #{buf.title}, #{buf.content})
+		</foreach> 
+	</insert>
+	
+		
+	<insert id="insertError" parameterType="boardDTO" >
+		insert into board (id,  pw, title,  cnt, content)
+		 values (#{id},'1111', #{title}, 0, '')		 
+	</insert>	
+	<!--
+	insert multi로 입력할 경우 하나만 실패해도 전부 실행 불가함
+	
+		<insert id="insertError" parameterType="listDTO" >
+		insert into board (id, pw, title, cnt, content)
+		values
+		<foreach collection="mem" item="buf" separator=","> 
+		(#{buf.id}, '1111', #{buf.title} , 0, '')
+		</foreach> 
+	</insert> -->
+	
+	
+	
+</mapper>
