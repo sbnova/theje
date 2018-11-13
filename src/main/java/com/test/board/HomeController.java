@@ -32,7 +32,7 @@ public class HomeController {
 		String formattedDate = dateFormat.format(date);
 		
 		model.addAttribute("serverTime", formattedDate ); 
-		model.addAttribute("nick", "�嵿��" ); 
+		model.addAttribute("nick", "장동건" ); 
 		
 		//6~12 : 오전, 12~6(18) : 오후 , (18)6~24 : 오후, 24~6:새벽		
 		//getHour() : 문자열의 시간을 뽑는 함수
